@@ -44,7 +44,8 @@ COPY ./vassals /etc/uwsgi/vassals
 
 RUN pip install appdynamics==4.3.10.0
 COPY ./ignore/appd.ini /app
+RUN mkdir -p /tmp/appd/logs && chown -R nginx:nginx /tmp/appd && chmod -R g+ws /tmp/appd && setfacl -dRm g::rwX /tmp/appd
 
 WORKDIR /app
 
-CMD ["/usr/bin/supervisord"]
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
