@@ -1,4 +1,4 @@
-FROM python:2.7
+FROM python:3.5
 
 # Install uWSGI & flask
 RUN pip install uwsgi && \
@@ -7,7 +7,8 @@ RUN pip install uwsgi && \
 # Standard set up Nginx
 ENV NGINX_VERSION 1.9.11-1~jessie
 
-RUN wget -q http://nginx.org/keys/nginx_signing.key -O- | apt-key add - \
+# RUN wget -q http://nginx.org/keys/nginx_signing.key -O- | apt-key add - \
+RUN apt-key adv --keyserver hkp://pgp.mit.edu:80 --recv-keys 573BFD6B3D8FBC641079A6ABABF5BD827BD9BF62 \
 	&& echo "deb http://nginx.org/packages/mainline/debian/ jessie nginx" >> /etc/apt/sources.list \
 	&& apt-get update \
 	&& apt-get install -y ca-certificates nginx=${NGINX_VERSION} gettext-base \
