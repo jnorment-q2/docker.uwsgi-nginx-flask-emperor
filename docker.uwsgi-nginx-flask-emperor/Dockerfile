@@ -43,6 +43,7 @@ COPY ./app /app
 COPY ./vassals /etc/uwsgi/vassals
 
 RUN pip install appdynamics==4.3.10.0
+COPY ./ignore/appd.ini /app
 
 WORKDIR /app
 
