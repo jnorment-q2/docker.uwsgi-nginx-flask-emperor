@@ -42,6 +42,8 @@ COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY ./app /app
 COPY ./vassals /etc/uwsgi/vassals
 
+RUN pip install appdynamics==4.3.10.0
+
 WORKDIR /app
 
 CMD ["/usr/bin/supervisord"]
