@@ -24,27 +24,43 @@ RUN echo "daemon off;" >> /etc/nginx/nginx.conf
 # Remove default configuration from Nginx
 RUN rm /etc/nginx/conf.d/default.conf
 
-# Copy the modified Nginx conf
-COPY nginx.conf /etc/nginx/conf.d/
+# nginx, uwsgi, and supervisord are all in separate folders
+#   enabling their configs to be mounted as volumes
+#   so they can be modified without rebuilding the container each time
+COPY nginx/conf.d /etc/nginx/conf.d
+
+# Copy uwsgi config (emporer and vassals)
+COPY ./uwsgi /etc/uwsgi
 
 # Copy uWSGI emperor.ini to monitor /etc/uwsgi/vassals folder
-COPY emperor.ini /etc/uwsgi/
+# COPY emperor.ini /etc/uwsgi/
 
 # This dir will be monitored by uwsgi emperor
-RUN mkdir /etc/uwsgi/vassals
+# RUN mkdir /etc/uwsgi/vassals
 
 # Install Supervisord
 RUN apt-get update && apt-get install -y supervisor \
 && rm -rf /var/lib/apt/lists/*
+
 # Custom Supervisord config
-COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+# COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+# Custom Supervisord config
+COPY supervisord/conf.d /etc/supervisor/conf.d
 
 COPY ./app /app
-COPY ./vassals /etc/uwsgi/vassals
 
-RUN pip install appdynamics==4.3.10.0
+# COPY ./vassals /etc/uwsgi/vassals
+
+RUN pip install appdynamics==4.3.16.0
 COPY ./ignore/appd.ini /app
 RUN mkdir -p /tmp/appd/logs && chown -R nginx:nginx /tmp/appd && chmod -R g+ws /tmp/appd && setfacl -dRm g::rwX /tmp/appd
+
+#RUN mkdir /app/log && chmod -R 777 /app/log
+#RUN chown -R nginx /app  && chmod 777 /app/log
+#RUN mkdir -p /tmp/appd/logs && chown -R nginx:nginx /tmp/appd && chmod -R g+ws /tmp/appd
+#setfacl depends on underlying docker storage driver
+#RUN setfacl -d -m u::rwX,g::rwX,o::rwX /tmp/appd/logs
 
 WORKDIR /app
 
